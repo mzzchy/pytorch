@@ -393,7 +393,7 @@ void UpdateLoggingLevelsFromFlags() {
 
 void ShowLogInfoToStderr() {
   FLAGS_logtostderr = 1;
-  FLAGS_minloglevel = std::min(FLAGS_minloglevel, google::GLOG_INFO);
+  FLAGS_minloglevel = std::min(FLAGS_minloglevel, static_cast<int>(google::GLOG_INFO));
 }
 } // namespace c10
 
@@ -476,7 +476,7 @@ MessageLogger::MessageLogger(
   if (GLOBAL_RANK != -1) {
     stream_ << "[rank" << GLOBAL_RANK << "]:";
   }
-  stream_ << '[' << CAFFE2_SEVERITY_PREFIX[std::min(4, GLOG_FATAL - severity_)]
+  stream_ << "[" << CAFFE2_SEVERITY_PREFIX[std::min(4, static_cast<int>(GLOG_FATAL) - severity_)]
           << (timeinfo->tm_mon + 1) * 100 + timeinfo->tm_mday
           << std::setfill('0') << ' ' << std::setw(2) << timeinfo->tm_hour
           << ':' << std::setw(2) << timeinfo->tm_min << ':' << std::setw(2)
@@ -501,7 +501,7 @@ MessageLogger::~MessageLogger() noexcept(false) {
       ANDROID_LOG_DEBUG, // VLOG(1)
       ANDROID_LOG_VERBOSE, // VLOG(2) .. VLOG(N)
   };
-  int android_level_index = GLOG_FATAL - std::min(GLOG_FATAL, severity_);
+  int android_level_index = static_cast<int>(GLOG_FATAL) - std::min(static_cast<int>(GLOG_FATAL), severity_);
   int level = android_log_levels[std::min(android_level_index, 5)];
   // Output the log string the Android log at the appropriate level.
   __android_log_print(level, tag_, "%s", stream_.str().c_str());
